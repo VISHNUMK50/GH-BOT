@@ -7,6 +7,8 @@ import moveit_commander
 import moveit_msgs.msg
 import geometry_msgs.msg
 import actionlib
+import math
+
 
 class Ur5Moveit:
 
@@ -81,17 +83,144 @@ class Ur5Moveit:
             '\033[94m' + "Object of class Ur5Moveit Deleted." + '\033[0m')
 
 
+    def set_joint_angles(self,group, arg_list_joint_angles):
+        if(group==1):
+            list_joint_values = self._group1.get_current_joint_values()
+            rospy.loginfo('\033[94m' + ">>> Current Joint Values:" + '\033[0m')
+            rospy.loginfo(list_joint_values)
+
+            self._group1.set_joint_value_target(arg_list_joint_angles)
+            self._group1.plan()
+            flag_plan = self._group1.go(wait=True)
+
+            list_joint_values = self._group1.get_current_joint_values()
+            rospy.loginfo('\033[94m' + ">>> Final Joint Values:" + '\033[0m')
+            rospy.loginfo(list_joint_values)
+
+            pose_values = self._group1.get_current_pose().pose
+            rospy.loginfo('\033[94m' + ">>> Final Pose:" + '\033[0m')
+            rospy.loginfo(pose_values)
+        elif group==2:
+            list_joint_values = self._group2.get_current_joint_values()
+            rospy.loginfo('\033[94m' + ">>> Current Joint Values:" + '\033[0m')
+            rospy.loginfo(list_joint_values)
+
+            self._group2.set_joint_value_target(arg_list_joint_angles)
+            self._group2.plan()
+            flag_plan = self._group2.go(wait=True)
+
+            list_joint_values = self._group2.get_current_joint_values()
+            rospy.loginfo('\033[94m' + ">>> Final Joint Values:" + '\033[0m')
+            rospy.loginfo(list_joint_values)
+
+            pose_values = self._group2.get_current_pose().pose
+            rospy.loginfo('\033[94m' + ">>> Final Pose:" + '\033[0m')
+            rospy.loginfo(pose_values)
+        if (flag_plan == True):
+            rospy.loginfo(
+                '\033[94m' + ">>> set_joint_angles() Success" + '\033[0m')
+        else:
+            rospy.logerr(
+                '\033[94m' + ">>> set_joint_angles() Failed." + '\033[0m')
+
+        return flag_plan
+
 def main():
 
     ur5 = Ur5Moveit()
+    mid1 = [math.radians(92),
+                          math.radians(0),
+                          math.radians(0),
+                          math.radians(0),
+                          math.radians(0),
+                          math.radians(0)]
+    mid2 = [math.radians(70),
+                          math.radians(-33),
+                          math.radians(0),
+                          math.radians(0),
+                          math.radians(0),
+                          math.radians(0)]
+    mid3 = [math.radians(74),
+                          math.radians(7),
+                          math.radians(-47),
+                          math.radians(0),
+                          math.radians(0),
+                          math.radians(0)]
 
+
+
+
+    pluck1 = [math.radians(90),
+                math.radians(55),
+                math.radians(-51),
+                math.radians(1),
+                math.radians(-5),
+                math.radians(1)]
+    pluck2 = [math.radians(70),
+                math.radians(41),
+                math.radians(-41),
+                math.radians(-15),
+                math.radians(-0),
+                math.radians(0)]
+    pluck3 = [math.radians(72),
+                math.radians(72),
+                math.radians(-114),
+                math.radians(5),
+                math.radians(0),
+                math.radians(0)]
+    dropr = [math.radians(-31),
+                math.radians(47),
+                math.radians(0),
+                math.radians(0),
+                math.radians(0),
+                math.radians(0)]
+    dropl = [math.radians(11),
+                math.radians(47),
+                math.radians(0),
+                math.radians(0),
+                math.radians(0),
+                math.radians(0)]
     while not rospy.is_shutdown():
-        ur5.go_to_predefined_pose(1,"close")
-        rospy.sleep(2)
         ur5.go_to_predefined_pose(1,"open")
-        rospy.sleep(2)
-        ur5.go_to_predefined_pose(2,"rest")
-        rospy.sleep(2)
+        rospy.sleep(1)
+        ur5.set_joint_angles(2,mid1)
+        rospy.sleep(1)
+        ur5.set_joint_angles(2,pluck1)
+        rospy.sleep(1)
+        ur5.go_to_predefined_pose(1,"close")
+        rospy.sleep(1)
+        ur5.set_joint_angles(2,mid1)
+        rospy.sleep(1)
+        ur5.set_joint_angles(2,dropr)
+        rospy.sleep(1)
+        ur5.go_to_predefined_pose(1,"open")
+        rospy.sleep(1)
+
+        ur5.set_joint_angles(2,mid2)
+        rospy.sleep(1)
+        ur5.set_joint_angles(2,pluck2)
+        rospy.sleep(1)
+        ur5.go_to_predefined_pose(1,"close")
+        rospy.sleep(1)
+        ur5.set_joint_angles(2,dropl)
+        rospy.sleep(1)
+        ur5.go_to_predefined_pose(1,"open")
+        rospy.sleep(1)
+
+        ur5.set_joint_angles(2,mid3)
+        rospy.sleep(1)
+        ur5.set_joint_angles(2,pluck3)
+        rospy.sleep(1)
+        ur5.go_to_predefined_pose(1,"close")
+        rospy.sleep(1)
+        ur5.set_joint_angles(2,mid3)
+        rospy.sleep(1)
+        ur5.set_joint_angles(2,dropr)
+        rospy.sleep(1)
+        ur5.go_to_predefined_pose(1,"open")
+        rospy.sleep(1)
+
+        
 
     del ur5
 
